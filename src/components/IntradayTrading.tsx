@@ -6,6 +6,7 @@ import HelpIcon from './HelpIcon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowDown, ArrowUp, Clock } from 'lucide-react';
 import { getIntradayPrice } from '../engine/intradayPricing';
+import TermTooltip from './TermTooltip';
 
 interface Props {
   dayAhead: DayAheadState;
@@ -59,13 +60,13 @@ export default function IntradayTrading({
   return (
     <div className="panel intraday-panel">
       <div className="panel-header">
-        <h3><Clock size={16} /> Intraday Continuous Market</h3>
+        <h3><Clock size={16} /> Intraday Continuous Market <TermTooltip term="Gate Closure" label="ID" /></h3>
         <HelpIcon text="Trade individual settlement periods as new information arrives. ID prices update based on latest market conditions. You can revise your DA positions or take new positions. Trades execute at the current ID price for the selected SP." />
       </div>
 
       <div className="id-chart">
         <h4>
-          DA Forecast vs Intraday Prices
+          DA Forecast vs Intraday Prices <TermTooltip term="Forecast vs Outturn" />
           <HelpIcon text="Blue = DA forecast (locked). Green dashed = live intraday price (tradeable). Red = SIP outturn (settled). Click a future SP to trade it." />
         </h4>
         <ResponsiveContainer width="100%" height={200}>

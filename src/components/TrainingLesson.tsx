@@ -32,8 +32,11 @@ import ExamReport from './ExamReport';
 import TradingCockpit from './TradingCockpit';
 import ThemeToggle from './ThemeToggle';
 import Tutorial, { type TutorialStep } from './Tutorial';
+import AboutProject from './AboutProject';
+import TradeExplainer from './TradeExplainer';
 import type { TrainingLevel } from '../data/curriculum';
 import { scoreMission } from '../engine/missionScoring';
+import { assessLesson } from '../engine/lessonAssessment';
 import { BarChart3, Battery, Brain, CheckCircle, ChevronLeft, ChevronRight, EyeOff, HelpCircle, Layers, LineChart, Play, Target } from 'lucide-react';
 import type { SpeedPreset } from '../engine/types';
 
@@ -128,11 +131,23 @@ const MISSION_STEPS: Record<LessonId, MissionStep[]> = {
     },
     {
       title: 'Make one trade',
-      objective: 'Use the signal: charge, discharge, or wait.',
+      objective: 'Make one deliberate charge or discharge.',
       briefing: 'This is a half-hour settlement period. A 50 MW action moves 25 MWh before efficiency effects.',
       focus: 'controls',
       completeWhen: state => state.battery.cycleLog.length >= 1,
-      hint: 'Use the controls panel. The estimated cost/revenue is for one half-hour SP.',
+      hint: 'Use the controls panel. If the signal is unclear, choose a small action and read the explainer.',
+      required: true,
+    },
+    {
+      title: 'Complete the round trip',
+      objective: 'Make the opposite action as well: charge and discharge at least once.',
+      briefing: 'A battery trade only becomes a full arbitrage cycle when you have both bought energy and sold energy.',
+      focus: 'controls',
+      completeWhen: state => (
+        state.battery.cycleLog.some(entry => entry.action === 'charge')
+        && state.battery.cycleLog.some(entry => entry.action === 'discharge')
+      ),
+      hint: 'Step forward to a better price, then use the opposite button. You need both sides to judge spread.',
       required: true,
     },
     {
@@ -140,7 +155,7 @@ const MISSION_STEPS: Record<LessonId, MissionStep[]> = {
       objective: 'Check if money and battery position improved.',
       briefing: 'A good trade is not just cash now. It also leaves the battery ready for the next opportunity.',
       focus: 'revenue',
-      completeWhen: state => state.battery.cycleLog.length >= 1,
+      completeWhen: state => state.battery.cycleLog.length >= 2,
       hint: 'Look for spread, SoC, and whether you still have headroom or stored energy.',
     },
   ],
@@ -410,6 +425,7 @@ function LessonHeader({
           Next Lesson
         </button>
         <ThemeToggle />
+        <AboutProject />
         <button className="btn btn-buy" onClick={onOpenSandbox}>Sandbox</button>
       </div>
     </header>
@@ -498,6 +514,7 @@ function LessonMain({ props, lessonId, focus, assessmentMode, level }: {
     return (
       <>
         {Signal}
+        <TradeExplainer battery={state.battery} currentPrice={state.currentPrice} priceHistory={state.priceHistory} />
       </>
     );
   }
@@ -505,6 +522,7 @@ function LessonMain({ props, lessonId, focus, assessmentMode, level }: {
     return (
       <>
         {Signal}
+        <TradeExplainer battery={state.battery} currentPrice={state.currentPrice} priceHistory={state.priceHistory} />
       </>
     );
   }
@@ -675,6 +693,29 @@ function MissionWalkthrough({
   );
 }
 
+function LessonSummaryPanel({ state, lessonId, onNextLesson }: {
+  state: GameState;
+  lessonId: LessonId;
+  onNextLesson: () => void;
+}) {
+  const assessment = assessLesson(state, lessonId);
+  if (assessment.readiness !== 'ready') return null;
+
+  const lesson = LESSONS.find(item => item.id === lessonId) ?? LESSONS[0];
+
+  return (
+    <section className="lesson-summary-panel">
+      <div>
+        <strong>{lesson.title} complete</strong>
+        <span>You passed {assessment.passed}/{assessment.total} checks. The next useful step is to practise without hints or move on.</span>
+      </div>
+      <button className="btn btn-buy" onClick={onNextLesson} disabled={lessonId === 5}>
+        Next Lesson <ChevronRight size={14} />
+      </button>
+    </section>
+  );
+}
+
 function TrainingCompletePanel({ props, onBackToLessons }: { props: Props; onBackToLessons: () => void }) {
   return (
     <section className="training-complete-panel">
@@ -792,6 +833,11 @@ export default function TrainingLesson(props: Props) {
         onSelectLesson={selectLesson}
         confused={confused}
         assessmentMode={assessmentMode}
+      />
+      <LessonSummaryPanel
+        state={state}
+        lessonId={lessonId}
+        onNextLesson={() => selectLesson(Math.min(5, lessonId + 1) as LessonId)}
       />
 
       <main className={`training-grid mission-focus-${focus}`}>

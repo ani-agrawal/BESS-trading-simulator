@@ -15,6 +15,17 @@ const difficultyColors: Record<string, string> = {
   hard: '#ef4444',
 };
 
+function scenarioFocus(day: HistoricalDay): string {
+  const title = day.title.toLowerCase();
+  const description = day.description.toLowerCase();
+  if (title.includes('wind') || description.includes('wind') || description.includes('negative')) return 'Practise charging into oversupply';
+  if (title.includes('scarcity') || description.includes('spike') || description.includes('cold')) return 'Practise preserving energy for scarcity';
+  if (title.includes('flat') || description.includes('flat')) return 'Practise waiting when spread is weak';
+  if (description.includes('forecast') || description.includes('outturn')) return 'Practise DA vs SIP forecast error';
+  if (title.includes('bm') || description.includes('balancing')) return 'Practise BM optionality';
+  return 'Practise choosing charge, discharge, or wait';
+}
+
 export default function ScenarioSelector({ onSelectScenario }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<HistoricalDay | null>(null);
@@ -143,6 +154,7 @@ export default function ScenarioSelector({ onSelectScenario }: Props) {
                       </div>
                       <h3>{day.title}</h3>
                       <p>{day.description}</p>
+                      <div className="scenario-focus">{scenarioFocus(day)}</div>
                       <div className="scenario-stats">
                         <span>Wind: {Math.round(day.windPct * 100)}%</span>
                         <span>Optimal: £{day.optimalRevenue.toLocaleString()}</span>
@@ -167,6 +179,7 @@ export default function ScenarioSelector({ onSelectScenario }: Props) {
                   </span>
                 </div>
                 <p className="scenario-detail-desc">{selected.description}</p>
+                <div className="scenario-focus detail">{scenarioFocus(selected)}</div>
                 <div className="scenario-detail-stats">
                   <div className="stat-pill">Wind: {Math.round(selected.windPct * 100)}%</div>
                   <div className="stat-pill">Optimal: £{selected.optimalRevenue.toLocaleString()}</div>

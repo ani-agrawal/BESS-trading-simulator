@@ -30,6 +30,16 @@ https://trading-sim-two.vercel.app/
 - Day-ahead, intraday, imbalance analysis, BM training, and revenue-stack panels.
 - Dark/light theme, save/load, glossary, strategy guide, and post-trade reports.
 
+## Screenshots
+
+Add screenshots after deployment to make the project easier to scan on GitHub and CV links:
+
+- Training walkthrough
+- Spot trading cockpit
+- Day-ahead schedule builder
+- Intraday re-optimisation screen
+- Post-trade analysis report
+
 ## Data and API Notes
 
 The simulator does not require private API keys.

@@ -31,6 +31,9 @@ import DecisionCoach from './components/DecisionCoach';
 import RegimeComparison from './components/RegimeComparison';
 import SupportPanels from './components/SupportPanels';
 import TradingCockpit from './components/TradingCockpit';
+import StartScreen from './components/StartScreen';
+import AboutProject from './components/AboutProject';
+import TradeExplainer from './components/TradeExplainer';
 
 export default function App() {
   const {
@@ -40,11 +43,20 @@ export default function App() {
     advanceTutorial, skipTutorial, setMode, loadSavedState, reset,
   } = useGameState();
   const [view, setView] = useState<AppView>('spot');
-  const [appMode, setAppMode] = useState<'training' | 'sandbox'>('training');
+  const [appMode, setAppMode] = useState<'start' | 'training' | 'sandbox'>('start');
   const [lessonId, setLessonId] = useState<LessonId>(1);
 
   const currentSp = getSettlementPeriod(state.clock.currentTime);
   const currentHour = new Date(state.clock.currentTime).getUTCHours();
+
+  if (appMode === 'start') {
+    return (
+      <StartScreen
+        onStartTraining={() => setAppMode('training')}
+        onOpenSandbox={() => setAppMode('sandbox')}
+      />
+    );
+  }
 
   if (appMode === 'training') {
     return (
@@ -97,6 +109,9 @@ export default function App() {
           />
         </div>
         <div className="header-right">
+          <button className="btn" onClick={() => setAppMode('start')}>
+            Start
+          </button>
           <button className="btn btn-buy" onClick={() => setAppMode('training')}>
             Training
           </button>
@@ -104,6 +119,7 @@ export default function App() {
           <ScenarioSelector onSelectScenario={playScenario} />
           <StrategyGuide currentMode={state.mode} onSelectMode={setMode} />
           <Glossary />
+          <AboutProject />
           <ThemeToggle />
         </div>
       </header>
@@ -134,6 +150,7 @@ export default function App() {
                 onDischarge={dischargeBattery}
                 onConfigureBattery={configureBattery}
               />
+              <TradeExplainer battery={state.battery} currentPrice={state.currentPrice} priceHistory={state.priceHistory} />
               <SupportPanels state={state} lessonId={1} showExplain compact />
             </div>
             <div className="grid-revenue">

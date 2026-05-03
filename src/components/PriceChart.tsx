@@ -1,6 +1,7 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import type { HourlyPrice } from '../engine/types';
 import HelpIcon from './HelpIcon';
+import TermTooltip from './TermTooltip';
 
 interface Props {
   priceHistory: HourlyPrice[];
@@ -46,7 +47,7 @@ export default function PriceChart({ priceHistory, currentPrice }: Props) {
   return (
     <div className="panel price-chart-panel" id="price-chart">
       <div className="panel-header">
-        <h3>Electricity Price</h3>
+        <h3>Electricity Price <TermTooltip term="Spread" /></h3>
         <HelpIcon text="The spot electricity price by settlement period. Use fixed zones as rough context, but make decisions from relative moves, recent volatility, SoC, and the Market Signal panel." />
         <div className="price-display">
           <span className="current-price" style={{ color: priceColor(lastPrice) }}>

@@ -2,6 +2,7 @@ import type { AnalysisSummary } from '../engine/ukMarket';
 import type { DayAheadState } from '../engine/types';
 import { Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts';
 import HelpIcon from './HelpIcon';
+import TermTooltip from './TermTooltip';
 import { Award, AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface Props {
@@ -29,7 +30,7 @@ export default function PostTradeAnalysis({ dayAhead, analysis }: Props) {
     return (
       <div className="panel analysis-panel" id="analysis-tab">
         <div className="panel-header">
-          <h3>Post-Trade Analysis</h3>
+          <h3>Post-Trade Analysis <TermTooltip term="SIP" /> <TermTooltip term="NIV" /></h3>
           <HelpIcon text="Compares your trades against the SIP outturn. Start trading and let settlement periods reveal." />
         </div>
         <div className="analysis-chart">
@@ -63,7 +64,7 @@ export default function PostTradeAnalysis({ dayAhead, analysis }: Props) {
   return (
     <div className="panel analysis-panel" id="analysis-tab">
       <div className="panel-header">
-        <h3>Post-Trade Analysis</h3>
+          <h3>Post-Trade Analysis <TermTooltip term="SIP" /> <TermTooltip term="NIV" /></h3>
         <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
           {totalRevealed}/48 SPs revealed
         </span>
@@ -90,7 +91,7 @@ export default function PostTradeAnalysis({ dayAhead, analysis }: Props) {
 
       {/* Chart */}
       <div className="analysis-chart">
-        <h4>DA Forecast vs SIP Outturn <HelpIcon text="Blue = forecast. Red = actual. The gap is where money was made or lost." /></h4>
+        <h4>DA Forecast vs SIP Outturn <TermTooltip term="Forecast vs Outturn" /> <HelpIcon text="Blue = forecast. Red = actual. The gap is where money was made or lost." /></h4>
         <ResponsiveContainer width="100%" height={200}>
           <ComposedChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
