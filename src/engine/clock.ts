@@ -1,0 +1,86 @@
+import type { SpeedPreset } from './types';
+
+export const HOUR_MS = 3600_000;
+export const HALF_HOUR_MS = 1800_000;
+
+export function createClock(startDate?: Date) {
+  const start = startDate ?? new Date(2024, 0, 15, 0, 0, 0);
+  return {
+    currentTime: start.getTime(),
+    isPaused: true,
+    speed: 'slow' as SpeedPreset,
+    startTime: start.getTime(),
+  };
+}
+
+export function tick(clock: { currentTime: number; isPaused: boolean; speed: number | string; startTime: number }) {
+  if (clock.isPaused) return clock;
+  return {
+    ...clock,
+    currentTime: clock.currentTime + HALF_HOUR_MS,
+  };
+}
+
+export function getHour(time: number): number {
+  return new Date(time).getUTCHours();
+}
+
+export function getMinute(time: number): number {
+  return new Date(time).getUTCMinutes();
+}
+
+export function getSettlementPeriod(time: number): number {
+  const d = new Date(time);
+  return d.getUTCHours() * 2 + (d.getUTCMinutes() >= 30 ? 1 : 0) + 1; // 1-48
+}
+
+export function getDayOfWeek(time: number): number {
+  return new Date(time).getUTCDay();
+}
+
+export function isWeekend(time: number): boolean {
+  const day = getDayOfWeek(time);
+  return day === 0 || day === 6;
+}
+
+export function formatTime(time: number): string {
+  const d = new Date(time);
+  return d.toUTCString().replace('GMT', 'UTC');
+}
+
+export function formatHour(time: number): string {
+  const d = new Date(time);
+  return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+}
+
+export function formatDate(time: number): string {
+  const d = new Date(time);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+export function getGateClosureTime(currentTime: number): number {
+  const d = new Date(currentTime);
+  const gateClosure = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 11, 0, 0));
+
+  if (d.getTime() >= gateClosure.getTime()) {
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1, 11, 0, 0)).getTime();
+  }
+  return gateClosure.getTime();
+}
+
+export function getNextDeliveryDay(currentTime: number): number {
+  const d = new Date(currentTime);
+  const gateClosure = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 11, 0, 0));
+
+  if (d.getTime() >= gateClosure.getTime()) {
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 2, 0, 0, 0)).getTime();
+  }
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1, 0, 0, 0)).getTime();
+}
+
+export function hoursUntilGateClosure(currentTime: number): number {
+  const gate = getGateClosureTime(currentTime);
+  return Math.max(0, Math.round((gate - currentTime) / HOUR_MS * 10) / 10);
+}
