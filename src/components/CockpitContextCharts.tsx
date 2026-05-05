@@ -6,9 +6,10 @@ function label(period: number): string {
 }
 
 export default function CockpitContextCharts({ state }: { state: GameState }) {
+  const revealed = state.dayAhead.revealedPeriods;
   const niv = state.dayAhead.niv.map((value, period) => ({
     sp: label(period),
-    niv: value,
+    niv: period < revealed ? value : null,
   }));
 
   const demandRenewables = state.priceHistory.slice(-48).map(point => ({
